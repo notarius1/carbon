@@ -130,7 +130,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                                 }));
 
                                 if let Err(e) = sender.try_send((update, id_for_closure.clone())) {
-                                    log::error!("Failed to send transaction update with signature {:?} at slot {}: {:?}", signature, message.slot, e);
+                                    log::debug!("Failed to send transaction update with signature {:?} at slot {}: {:?}", signature, message.slot, e);
                                     return Ok(());
                                 }
                             }
