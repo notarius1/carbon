@@ -422,7 +422,7 @@ async fn send_subscribe_update_transaction_info(
             block_hash: None,
         }));
         if let Err(e) = sender.try_send((update, id)) {
-            log::error!(
+            log::debug!(
                 "Failed to send transaction update with signature {:?} at slot {}: {:?}",
                 signature,
                 slot,
