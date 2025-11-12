@@ -56,6 +56,7 @@ use {
     async_trait::async_trait,
     std::sync::Arc,
 };
+use crate::datasource::DatasourceId;
 
 /// A trait for defining asynchronous data processing within the pipeline.
 ///
@@ -115,5 +116,6 @@ pub trait Processor {
         &mut self,
         data: Self::InputType,
         metrics: Arc<MetricsCollection>,
+        datasource_id: &DatasourceId,
     ) -> CarbonResult<()>;
 }

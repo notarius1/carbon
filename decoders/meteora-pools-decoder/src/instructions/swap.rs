@@ -9,6 +9,7 @@ pub struct Swap {
     pub minimum_out_amount: u64,
 }
 
+#[derive(Debug)]
 pub struct SwapInstructionAccounts {
     pub pool: solana_pubkey::Pubkey,
     pub user_source_token: solana_pubkey::Pubkey,

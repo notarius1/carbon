@@ -49,6 +49,8 @@ use {
     solana_signature::Signature,
     std::sync::Arc,
 };
+use crate::datasource::DatasourceId;
+
 /// Contains metadata about a transaction, including its slot, signature, fee
 /// payer, transaction status metadata, the version transaction message and its
 /// block time.
@@ -276,6 +278,7 @@ pub fn parse_instructions<T: InstructionDecoderCollection>(
 pub trait TransactionPipes<'a>: Send + Sync {
     async fn run(
         &mut self,
+        _datasource_id: &DatasourceId,
         transaction_metadata: Arc<TransactionMetadata>,
         instructions: &[NestedInstruction],
         metrics: Arc<MetricsCollection>,
@@ -292,6 +295,7 @@ where
 {
     async fn run(
         &mut self,
+        datasource_id: &DatasourceId,
         transaction_metadata: Arc<TransactionMetadata>,
         instructions: &[NestedInstruction],
         metrics: Arc<MetricsCollection>,
@@ -315,6 +319,7 @@ where
             .process(
                 (transaction_metadata, unnested_instructions, matched_data),
                 metrics,
+                datasource_id,
             )
             .await?;
 

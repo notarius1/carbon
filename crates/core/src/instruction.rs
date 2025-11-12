@@ -34,6 +34,8 @@ use {
     },
 };
 
+use crate::datasource::DatasourceId;
+
 /// Metadata associated with a specific instruction, including transaction-level
 /// details.
 ///
@@ -279,6 +281,7 @@ pub struct InstructionPipe<T: Send> {
 pub trait InstructionPipes<'a>: Send + Sync {
     async fn run(
         &mut self,
+        _datasource_id: &DatasourceId,
         nested_instruction: &NestedInstruction,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
@@ -289,6 +292,7 @@ pub trait InstructionPipes<'a>: Send + Sync {
 impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
     async fn run(
         &mut self,
+        datasource_id: &DatasourceId,
         nested_instruction: &NestedInstruction,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -310,12 +314,13 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
                         nested_instruction.instruction.clone(),
                     ),
                     metrics.clone(),
+                    datasource_id,
                 )
                 .await?;
         }
 
         for nested_inner_instruction in nested_instruction.inner_instructions.iter() {
-            self.run(nested_inner_instruction, metrics.clone()).await?;
+            self.run(datasource_id, nested_inner_instruction, metrics.clone()).await?;
         }
 
         Ok(())

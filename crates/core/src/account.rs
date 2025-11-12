@@ -60,6 +60,8 @@ use {
     std::sync::Arc,
 };
 
+use crate::datasource::DatasourceId;
+
 /// Holds metadata for an account update, including the slot and public key.
 ///
 /// `AccountMetadata` provides essential information about an account update,
@@ -175,6 +177,7 @@ pub struct AccountPipe<T: Send> {
 pub trait AccountPipes: Send + Sync {
     async fn run(
         &mut self,
+        _datasource_id: &DatasourceId,
         account_with_metadata: (AccountMetadata, solana_account::Account),
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
@@ -186,6 +189,7 @@ pub trait AccountPipes: Send + Sync {
 impl<T: Send> AccountPipes for AccountPipe<T> {
     async fn run(
         &mut self,
+        datasource_id: &DatasourceId,
         account_with_metadata: (AccountMetadata, solana_account::Account),
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -203,6 +207,7 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
                         account_with_metadata.1,
                     ),
                     metrics.clone(),
+                    datasource_id,
                 )
                 .await?;
         }

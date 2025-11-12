@@ -16,7 +16,7 @@ use {
         collections::{HashMap, HashSet},
         convert::TryFrom,
         sync::Arc,
-        time::Duration,
+        time::{Duration, SystemTime, UNIX_EPOCH},
     },
     tokio::sync::{mpsc::Sender, RwLock},
     tokio_util::sync::CancellationToken,
@@ -227,7 +227,11 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             }
 
                                             Some(UpdateOneof::Transaction(transaction_update)) => {
-                                                send_subscribe_update_transaction_info(transaction_update.transaction, &metrics, &sender, id_for_loop.clone(), transaction_update.slot, None).await
+                                                let start_time = SystemTime::now();
+                                                let block_time =
+                                                    Some(start_time.duration_since(UNIX_EPOCH).unwrap().as_millis() as i64);
+
+                                                send_subscribe_update_transaction_info(transaction_update.transaction, &metrics, &sender, id_for_loop.clone(), transaction_update.slot, block_time).await
                                             }
                                             Some(UpdateOneof::Block(block_update)) => {
                                                 let block_time = block_update.block_time.map(|ts| ts.timestamp);

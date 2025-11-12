@@ -17,6 +17,8 @@ use {
     std::sync::Arc,
 };
 
+use crate::datasource::DatasourceId;
+
 /// A processing pipe for handling account deletions.
 ///
 /// The `AccountDeletionPipe` struct encapsulates the logic needed to process
@@ -94,6 +96,7 @@ pub struct AccountDeletionPipe {
 pub trait AccountDeletionPipes: Send + Sync {
     async fn run(
         &mut self,
+        _datasource_id: &DatasourceId,
         account_deletion: AccountDeletion,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
@@ -105,6 +108,7 @@ pub trait AccountDeletionPipes: Send + Sync {
 impl AccountDeletionPipes for AccountDeletionPipe {
     async fn run(
         &mut self,
+        datasource_id: &DatasourceId,
         account_deletion: AccountDeletion,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -113,7 +117,7 @@ impl AccountDeletionPipes for AccountDeletionPipe {
             account_deletion,
         );
 
-        self.processor.process(account_deletion, metrics).await?;
+        self.processor.process(account_deletion, metrics, datasource_id).await?;
 
         Ok(())
     }

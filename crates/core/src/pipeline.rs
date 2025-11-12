@@ -536,6 +536,7 @@ impl Pipeline {
                         )
                     }) {
                         pipe.run(
+                            &datasource_id,
                             (account_metadata.clone(), account_update.account.clone()),
                             self.metrics.clone(),
                         )
@@ -563,7 +564,7 @@ impl Pipeline {
                         if pipe.filters().iter().all(|filter| {
                             filter.filter_instruction(&datasource_id, nested_instruction)
                         }) {
-                            pipe.run(nested_instruction, self.metrics.clone()).await?;
+                            pipe.run(&datasource_id, nested_instruction, self.metrics.clone()).await?;
                         }
                     }
                 }
@@ -577,6 +578,7 @@ impl Pipeline {
                         )
                     }) {
                         pipe.run(
+                            &datasource_id,
                             transaction_metadata.clone(),
                             &nested_instructions,
                             self.metrics.clone(),
@@ -594,7 +596,7 @@ impl Pipeline {
                     if pipe.filters().iter().all(|filter| {
                         filter.filter_account_deletion(&datasource_id, &account_deletion)
                     }) {
-                        pipe.run(account_deletion.clone(), self.metrics.clone())
+                        pipe.run(&datasource_id, account_deletion.clone(), self.metrics.clone())
                             .await?;
                     }
                 }
@@ -610,7 +612,7 @@ impl Pipeline {
                         .iter()
                         .all(|filter| filter.filter_block_details(&datasource_id, &block_details))
                     {
-                        pipe.run(block_details.clone(), self.metrics.clone())
+                        pipe.run(&datasource_id, block_details.clone(), self.metrics.clone())
                             .await?;
                     }
                 }
@@ -758,10 +760,12 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .datasource(MyDatasource::new());
     /// ```
-    pub fn datasource(mut self, datasource: impl Datasource + 'static) -> Self {
+    /// DatasourceId::new_named("mainnet-rpc")
+    pub fn datasource(mut self, name: &str, datasource: impl Datasource + 'static) -> Self {
         log::trace!("datasource(self, datasource: {:?})", stringify!(datasource));
         self.datasources
-            .push((DatasourceId::new_unique(), Arc::new(datasource)));
+            .push((DatasourceId::new_named(name), Arc::new(datasource)));
+            // .push((DatasourceId::new_unique(), Arc::new(datasource)));
         self
     }
 

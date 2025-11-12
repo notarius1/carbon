@@ -6,6 +6,8 @@ use crate::processor::Processor;
 use async_trait::async_trait;
 use std::sync::Arc;
 
+use crate::datasource::DatasourceId;
+
 /// A pipe for processing block details using a defined processor.
 ///
 /// The `BlockDetailsPipe` processes updates related to block metadata, such as
@@ -40,6 +42,7 @@ pub struct BlockDetailsPipe {
 pub trait BlockDetailsPipes: Send + Sync {
     async fn run(
         &mut self,
+        _datasource_id: &DatasourceId,
         block_details: BlockDetails,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
@@ -51,6 +54,7 @@ pub trait BlockDetailsPipes: Send + Sync {
 impl BlockDetailsPipes for BlockDetailsPipe {
     async fn run(
         &mut self,
+        datasource_id: &DatasourceId,
         block_details: BlockDetails,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -59,7 +63,7 @@ impl BlockDetailsPipes for BlockDetailsPipe {
             block_details,
         );
 
-        self.processor.process(block_details, metrics).await?;
+        self.processor.process(block_details, metrics, datasource_id).await?;
 
         Ok(())
     }
