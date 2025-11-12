@@ -114,6 +114,11 @@ impl Datasource for JitoShredstreamGrpcClient {
                             let _ = dedup_cache.put(entry.hash, ());
 
                             for transaction in entry.transactions {
+                                let sigs_len = transaction.signatures.len();
+                                if sigs_len == 0 {
+                                    continue;
+                                }
+
                                 let signature = *transaction.get_signature();
 
                                 let update = Update::Transaction(Box::new(TransactionUpdate {
